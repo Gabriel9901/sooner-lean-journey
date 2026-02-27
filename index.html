@@ -306,7 +306,7 @@
         <!-- Step 2 — LEAN -->
         <div class="step-card lean-step bg-white/70 rounded-xl border border-accent/30 px-5 py-4 anim-fade-up" style="animation-delay: 0.08s">
           <div class="flex items-start gap-3">
-            <div class="step-number bg-primary text-white mt-0.5">2</div>
+            <div class="step-number bg-accent text-white mt-0.5">2</div>
             <div class="flex-1 min-w-0">
               <div class="flex flex-wrap items-center gap-2">
                 <h3 class="font-display text-lg text-ink">Pre-Qualification</h3>
@@ -323,21 +323,14 @@
           </div>
         </div>
 
-        <!-- Step 3 — LEAN -->
-        <div class="step-card lean-step bg-white/70 rounded-xl border border-accent/30 px-5 py-4 anim-fade-up" style="animation-delay: 0.11s">
+        <!-- Step 3 -->
+        <div class="step-card bg-white/70 rounded-xl border border-border/60 px-5 py-4 anim-fade-up" style="animation-delay: 0.11s">
           <div class="flex items-start gap-3">
             <div class="step-number bg-primary text-white mt-0.5">3</div>
             <div class="flex-1 min-w-0">
-              <div class="flex flex-wrap items-center gap-2">
-                <h3 class="font-display text-lg text-ink">Document Collection &amp; Approval</h3>
-                <span class="lean-badge inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-dark bg-accent-light px-2 py-0.5 rounded-full">
-                  <svg width="8" height="8" viewBox="0 0 8 8" fill="#9A7820"><circle cx="4" cy="4" r="4"/></svg>
-                  Lean &middot; Account Verification
-                </span>
-              </div>
+              <h3 class="font-display text-lg text-ink">Document Collection &amp; Approval</h3>
               <ul class="text-sm text-muted mt-1.5 space-y-0.5">
                 <li>Buyer uploads documents (bank statements, ID, payslips, salary certificate)</li>
-                <li>Lean confirms bank account validity before Sooner processes the application</li>
                 <li>Sooner issues approval decision: approve, conditional, or decline</li>
               </ul>
             </div>
@@ -432,11 +425,15 @@
                 <h3 class="font-display text-lg text-ink">Disbursement to All Parties</h3>
                 <span class="lean-badge inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-dark bg-accent-light px-2 py-0.5 rounded-full">
                   <svg width="8" height="8" viewBox="0 0 8 8" fill="#9A7820"><circle cx="4" cy="4" r="4"/></svg>
+                  Lean &middot; Account Verification
+                </span>
+                <span class="lean-badge inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-dark bg-accent-light px-2 py-0.5 rounded-full">
+                  <svg width="8" height="8" viewBox="0 0 8 8" fill="#9A7820"><circle cx="4" cy="4" r="4"/></svg>
                   Lean &middot; Payouts
                 </span>
               </div>
               <ul class="text-sm text-muted mt-1.5 space-y-0.5">
-                <li>Sooner disburses funds to DLD, seller agent, and mortgage provider</li>
+                <li>Lean verifies recipient accounts (DLD, seller agent, mortgage provider) before disbursement</li>
                 <li>Lean executes multi-party payouts with confirmation and reconciliation</li>
               </ul>
             </div>
@@ -495,17 +492,17 @@
         <!-- Card 2: Account Verification -->
         <div class="product-card bg-white/80 rounded-2xl border border-border/60 overflow-hidden">
           <div class="bg-primary px-5 py-4">
-            <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-0.5">Step 3</div>
+            <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-0.5">Step 10</div>
             <h3 class="font-display text-xl text-white">Account Verification</h3>
           </div>
           <div class="p-5 space-y-3">
             <div>
               <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-0.5">Data In</div>
-              <p class="text-sm text-ink/80">Buyer's bank account details (IBAN, account holder name)</p>
+              <p class="text-sm text-ink/80">Recipient bank details (DLD, seller agent, mortgage provider IBANs)</p>
             </div>
             <div>
               <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-0.5">Data Out</div>
-              <p class="text-sm text-ink/80">Account validity confirmation, name match, account status</p>
+              <p class="text-sm text-ink/80">Account validity confirmation, name match, account status for each recipient</p>
             </div>
           </div>
         </div>
@@ -580,9 +577,7 @@ flowchart TD
 
     LEAN1 --> C[Document Collection]
 
-    C --> LEAN2[🟡 LEAN: Account Verification<br/>Confirm bank account validity]
-
-    LEAN2 --> D[Approval Decision]
+    C --> D[Approval Decision]
 
     D --> E[Mortgage Pre-Approval]
 
@@ -596,7 +591,9 @@ flowchart TD
 
     I --> LEAN3a[🟡 LEAN: Collections<br/>1st instalment collected]
 
-    LEAN3a --> LEAN4[🟡 LEAN: Payouts<br/>Disburse to DLD, seller agent, mortgage provider]
+    LEAN3a --> LEAN2[🟡 LEAN: Account Verification<br/>Verify recipient accounts]
+
+    LEAN2 --> LEAN4[🟡 LEAN: Payouts<br/>Disburse to DLD, seller agent, mortgage provider]
 
     LEAN4 --> J[Master &amp; Sub-Lease Setup]
 
