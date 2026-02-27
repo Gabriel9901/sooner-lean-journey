@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sooner × Lean: Integration Overview</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream:    { DEFAULT: '#F5F3EE', dark: '#EBE7DF' },
+            ink:      '#1C1C28',
+            muted:    '#7A7A85',
+            border:   '#DDD9D0',
+            primary:  { DEFAULT: '#0C4A3E', light: '#1A7A5C', lighter: '#E8F5EE', dark: '#083028' },
+            accent:   { DEFAULT: '#C49A2A', light: '#F5E6B8', dark: '#9A7820' },
+            decline:  { DEFAULT: '#C0392B', light: '#FDECEA' },
+            approve:  { DEFAULT: '#1E8449', light: '#E8F8EF' },
+            cond:     { DEFAULT: '#D4790E', light: '#FDF2E9' },
+          },
+          fontFamily: {
+            display: ["'Instrument Serif'", 'Georgia', 'serif'],
+            body:    ["'DM Sans'", 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Mermaid -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #F5F3EE;
+      color: #1C1C28;
+      margin: 0;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(196,154,42,0.25); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(196,154,42,0.45); }
+
+    /* Frosted nav */
+    .frosted-nav {
+      background: rgba(245,243,238,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(12,74,62,0.15); }
+      50%      { box-shadow: 0 0 0 8px rgba(12,74,62,0); }
+    }
+    .anim-fade-up   { animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .anim-fade-in   { animation: fadeIn 0.6s ease both; }
+    .anim-scale-in  { animation: scaleIn 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+    .anim-slide-r   { animation: slideRight 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+    /* Step cards */
+    .step-card {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .step-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(12,74,62,0.08);
+    }
+
+    /* Lean badge pulse */
+    .lean-badge {
+      animation: pulseGlow 2.5s ease-in-out infinite;
+    }
+
+    /* Pipeline connector */
+    .pipeline-connector {
+      position: relative;
+    }
+    .pipeline-connector::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 2px;
+      height: 24px;
+      background: linear-gradient(to bottom, #0C4A3E, rgba(12,74,62,0.2));
+      transform: translateX(-50%);
+    }
+    .pipeline-connector:last-child::after { display: none; }
+
+    /* Desktop horizontal pipeline */
+    @media (min-width: 1024px) {
+      .pipeline-connector::after {
+        left: 100%;
+        top: 50%;
+        width: 32px;
+        height: 2px;
+        background: linear-gradient(to right, #0C4A3E, rgba(12,74,62,0.2));
+        transform: translateY(-50%);
+      }
+    }
+
+    /* Lean highlight border */
+    .lean-step {
+      border-left: 3px solid #C49A2A;
+    }
+
+    /* Product card hover */
+    .product-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 16px 40px rgba(12,74,62,0.1);
+    }
+
+    /* Mermaid container */
+    .mermaid-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mermaid svg {
+      max-width: none !important;
+    }
+
+    /* Grain overlay */
+    .grain::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Section divider */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, #DDD9D0, transparent);
+    }
+
+    /* Number circle */
+    .step-number {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    /* Nav link hover */
+    .nav-link {
+      position: relative;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1.5px;
+      background: #0C4A3E;
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after {
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body class="grain">
+
+  <!-- ─── NAV ─── -->
+  <nav class="frosted-nav fixed top-0 left-0 right-0 z-50 border-b border-border/50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+          <span class="text-white font-display text-sm">S</span>
+        </div>
+        <span class="font-display text-xl text-primary">Sooner</span>
+        <span class="text-muted mx-1">×</span>
+        <span class="font-body text-sm font-semibold tracking-wide uppercase text-accent">Lean</span>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-muted">
+        <a href="#journey" class="nav-link hover:text-ink transition-colors">Journey</a>
+        <a href="#integrations" class="nav-link hover:text-ink transition-colors">Integrations</a>
+        <a href="#flow" class="nav-link hover:text-ink transition-colors">Flow Diagram</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section class="pt-32 pb-20 px-6 relative overflow-hidden">
+    <!-- Decorative elements -->
+    <div class="absolute top-20 right-0 w-96 h-96 rounded-full bg-primary/[0.03] blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-accent/[0.05] blur-3xl"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative">
+      <div class="anim-fade-up" style="animation-delay: 0.1s">
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/[0.06] text-primary text-xs font-semibold uppercase tracking-widest mb-8">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+          Partner Integration Brief
+        </span>
+      </div>
+
+      <h1 class="anim-fade-up font-display text-5xl md:text-7xl text-primary leading-[1.05] mb-6" style="animation-delay: 0.2s">
+        Sooner <span class="text-accent">×</span> Lean
+      </h1>
+
+      <p class="anim-fade-up font-display text-2xl md:text-3xl text-primary/70 italic mb-8" style="animation-delay: 0.3s">
+        Integration Overview
+      </p>
+
+      <p class="anim-fade-up max-w-2xl mx-auto text-muted text-base md:text-lg leading-relaxed mb-10" style="animation-delay: 0.4s">
+        Sooner enables UAE homeownership through <strong class="text-ink font-medium">Forward Ijara</strong> — a Sharia-compliant lease-to-own model. Lean powers four critical touchpoints across the borrower journey:
+        <span class="text-primary font-medium">income verification</span>,
+        <span class="text-primary font-medium">account validation</span>,
+        <span class="text-primary font-medium">payment collection</span>, and
+        <span class="text-primary font-medium">multi-party disbursements</span>.
+      </p>
+
+      <div class="anim-fade-up flex flex-wrap justify-center gap-3" style="animation-delay: 0.5s">
+        <a href="#journey" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-medium text-sm hover:bg-primary-dark transition-colors">
+          View Journey
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h8m-4-4 4 4-4 4"/></svg>
+        </a>
+        <a href="#integrations" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cream-dark text-ink font-medium text-sm border border-border hover:border-primary/30 transition-colors">
+          Lean Products
+        </a>
+      </div>
+
+      <!-- Quick stats -->
+      <div class="anim-fade-up mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto" style="animation-delay: 0.6s">
+        <div class="bg-white/60 rounded-2xl p-4 border border-border/50">
+          <div class="font-display text-3xl text-primary">11</div>
+          <div class="text-xs text-muted mt-1">Journey Steps</div>
+        </div>
+        <div class="bg-white/60 rounded-2xl p-4 border border-border/50">
+          <div class="font-display text-3xl text-accent">4</div>
+          <div class="text-xs text-muted mt-1">Lean Touchpoints</div>
+        </div>
+        <div class="bg-white/60 rounded-2xl p-4 border border-border/50">
+          <div class="font-display text-3xl text-primary">~60</div>
+          <div class="text-xs text-muted mt-1">Month Term</div>
+        </div>
+        <div class="bg-white/60 rounded-2xl p-4 border border-border/50">
+          <div class="font-display text-3xl text-primary">0.40<span class="text-lg">%</span></div>
+          <div class="text-xs text-muted mt-1">Collection Rate</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- ─── JOURNEY PIPELINE ─── -->
+  <section id="journey" class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-xs font-semibold uppercase tracking-widest text-accent">The Full Lead Journey</span>
+        <h2 class="font-display text-4xl md:text-5xl text-primary mt-3">11 Steps to Homeownership</h2>
+        <p class="text-muted mt-4 max-w-xl mx-auto">From first ad click to master lease execution. Steps highlighted in <span class="inline-flex items-center gap-1 text-accent font-semibold"><svg width="12" height="12" viewBox="0 0 12 12" fill="#C49A2A"><rect width="12" height="12" rx="2"/></svg> gold</span> involve Lean integrations.</p>
+      </div>
+
+      <!-- Pipeline -->
+      <div class="space-y-4">
+
+        <!-- Step 1 -->
+        <div class="step-card bg-white/70 rounded-2xl border border-border/60 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.05s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-primary text-white">1</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Inbound</h3>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-muted bg-cream-dark px-2 py-0.5 rounded-full">Lead Capture</span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed">Lead arrives via <strong class="text-ink">META ads</strong> or website. Fills basic contact form: name, phone, email.</p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <span class="text-[11px] text-primary/70 bg-primary/[0.06] px-2.5 py-1 rounded-lg">Partner-submitted source</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 — LEAN -->
+        <div class="step-card lean-step bg-white/70 rounded-2xl border border-accent/30 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.1s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-primary text-white">2</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Pre-Qualification Form</h3>
+                <span class="lean-badge inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-dark bg-accent-light px-2.5 py-1 rounded-full">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="#9A7820"><circle cx="5" cy="5" r="5"/></svg>
+                  Lean · Open Banking Data
+                </span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed">Borrower completes full qualification form. <strong class="text-ink">Goal:</strong> determine if customer fits Sooner's criteria before investing more time.</p>
+              <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="bg-cream rounded-xl p-3 border border-border/40">
+                  <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/60 mb-1">Collects</div>
+                  <div class="text-xs text-ink/80">Income, employment type, nationality/residency, property intent, existing liabilities</div>
+                </div>
+                <div class="bg-accent/[0.04] rounded-xl p-3 border border-accent/20">
+                  <div class="text-[10px] font-semibold uppercase tracking-wider text-accent-dark mb-1">Lean Touchpoint</div>
+                  <div class="text-xs text-ink/80">Borrower connects bank via Lean consent flow → income verification + 6-month statement analysis</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 — LEAN -->
+        <div class="step-card lean-step bg-white/70 rounded-2xl border border-accent/30 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.15s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-primary text-white">3</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Document Collection & Approval</h3>
+                <span class="lean-badge inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-dark bg-accent-light px-2.5 py-1 rounded-full">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="#9A7820"><circle cx="5" cy="5" r="5"/></svg>
+                  Lean · Account Verification
+                </span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed">Borrower uploads: bank statements, passport/Emirates ID, payslips, salary certificate.</p>
+              <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="bg-cream rounded-xl p-3 border border-border/40">
+                  <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/60 mb-1">Output</div>
+                  <div class="text-xs text-ink/80">Internal credit score (SCS) → <span class="inline-flex items-center gap-1 font-semibold text-approve">Approve</span> · <span class="inline-flex items-center gap-1 font-semibold text-cond">Conditional</span> · <span class="inline-flex items-center gap-1 font-semibold text-decline">Decline</span></div>
+                </div>
+                <div class="bg-accent/[0.04] rounded-xl p-3 border border-accent/20">
+                  <div class="text-[10px] font-semibold uppercase tracking-wider text-accent-dark mb-1">Lean Touchpoint</div>
+                  <div class="text-xs text-ink/80">Account Verification — confirm borrower's bank account is valid before proceeding</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-card bg-white/70 rounded-2xl border border-border/60 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.2s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-primary text-white">4</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Mortgage Pre-Approval</h3>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-muted bg-cream-dark px-2 py-0.5 rounded-full">Financing</span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed"><strong class="text-ink">Pre-license:</strong> refer to partner mortgage provider. <strong class="text-ink">Post-license:</strong> Sooner processes in-house.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="step-card bg-white/70 rounded-2xl border border-border/60 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.25s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-primary text-white">5</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Property Search</h3>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-muted bg-cream-dark px-2 py-0.5 rounded-full">Real Estate</span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed">BDR/broker searches inventory, books viewings, client reviews units.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="step-card bg-white/70 rounded-2xl border border-border/60 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.3s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-primary text-white">6</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Sign Form B & Form F</h3>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-muted bg-cream-dark px-2 py-0.5 rounded-full">Legal</span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed"><strong class="text-ink">Form B:</strong> authorises Sooner as buyer's agent. <strong class="text-ink">Form F:</strong> MOU between buyer and seller. Mortgage approval confirmed.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="step-card bg-white/70 rounded-2xl border border-border/60 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.35s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-primary text-white">7</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Full Mortgage Approval</h3>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-muted bg-cream-dark px-2 py-0.5 rounded-full">Financing</span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed">Final credit committee sign-off. Full underwriting complete.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 8 -->
+        <div class="step-card bg-white/70 rounded-2xl border border-border/60 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.4s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-primary text-white">8</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Sooner–Buyer Facility Contract</h3>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-muted bg-cream-dark px-2 py-0.5 rounded-full">Legal</span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed">Sooner signs commitment contract with buyer. Legal prerequisite for the master lease structure.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 9 — LEAN -->
+        <div class="step-card lean-step bg-white/70 rounded-2xl border border-accent/30 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.45s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-accent text-white">9</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">First Payment + Recurring Collections</h3>
+                <span class="lean-badge inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-dark bg-accent-light px-2.5 py-1 rounded-full">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="#9A7820"><circle cx="5" cy="5" r="5"/></svg>
+                  Lean · Collections
+                </span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed">Buyer pays first instalment. Recurring monthly Forward Ijara payments begin over ~60-month term.</p>
+              <div class="mt-3">
+                <div class="bg-accent/[0.04] rounded-xl p-3 border border-accent/20">
+                  <div class="text-[10px] font-semibold uppercase tracking-wider text-accent-dark mb-1">Lean Touchpoint</div>
+                  <div class="text-xs text-ink/80">Collections — Lean collects recurring payments at <strong>0.40% per transaction</strong> over the full ~60-month term</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 10 — LEAN -->
+        <div class="step-card lean-step bg-white/70 rounded-2xl border border-accent/30 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.5s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-accent text-white">10</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Sooner Disburses to All Parties</h3>
+                <span class="lean-badge inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-dark bg-accent-light px-2.5 py-1 rounded-full">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="#9A7820"><circle cx="5" cy="5" r="5"/></svg>
+                  Lean · Payouts
+                </span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed">Sooner pays: DLD fees, seller agent commission, mortgage provider.</p>
+              <div class="mt-3">
+                <div class="bg-accent/[0.04] rounded-xl p-3 border border-accent/20">
+                  <div class="text-[10px] font-semibold uppercase tracking-wider text-accent-dark mb-1">Lean Touchpoint</div>
+                  <div class="text-xs text-ink/80">Payouts — Lean executes disbursements to each party (DLD, seller agent, mortgage provider)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 11 -->
+        <div class="step-card bg-white/70 rounded-2xl border border-primary/30 p-5 md:p-6 anim-fade-up" style="animation-delay: 0.55s">
+          <div class="flex items-start gap-4">
+            <div class="step-number bg-primary text-white">11</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="font-display text-xl text-ink">Master & Sub-Lease Setup</h3>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-white bg-primary px-2.5 py-0.5 rounded-full">Complete</span>
+              </div>
+              <p class="text-sm text-muted leading-relaxed">Sooner signs master lease with landlord, sub-leases to buyer. Legal <strong class="text-ink">Forward Ijara</strong> structure complete — same model as AirBnB ownership structure.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- ─── LEAN INTEGRATION SUMMARY ─── -->
+  <section id="integrations" class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-xs font-semibold uppercase tracking-widest text-accent">Lean Technologies</span>
+        <h2 class="font-display text-4xl md:text-5xl text-primary mt-3">Integration Summary</h2>
+        <p class="text-muted mt-4 max-w-xl mx-auto">Four products powering the financial infrastructure of Sooner's Forward Ijara model.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Card 1: Open Banking Data -->
+        <div class="product-card bg-white/80 rounded-2xl border border-border/60 overflow-hidden">
+          <div class="bg-primary p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-1">Step 2 · Pre-Qualification</div>
+                <h3 class="font-display text-2xl text-white">Open Banking Data</h3>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                <svg width="24" height="24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M3 7h18M3 12h18M3 17h18"/><circle cx="7" cy="7" r="1.5" fill="white"/><circle cx="14" cy="12" r="1.5" fill="white"/><circle cx="10" cy="17" r="1.5" fill="white"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="p-5 space-y-4">
+            <div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-1">Data In</div>
+              <p class="text-sm text-ink/80">Borrower connects bank account via Lean consent flow</p>
+            </div>
+            <div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-1">Data Out</div>
+              <p class="text-sm text-ink/80">Income verification, 6-month transaction history, statement analysis, spending patterns</p>
+            </div>
+            <div class="bg-cream rounded-xl p-4 border border-border/40">
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-accent-dark mb-2">Pricing</div>
+              <div class="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <div class="font-display text-xl text-primary">$6k</div>
+                  <div class="text-[10px] text-muted">Min / year</div>
+                </div>
+                <div>
+                  <div class="font-display text-xl text-primary">1,500</div>
+                  <div class="text-[10px] text-muted">MUC incl.</div>
+                </div>
+                <div>
+                  <div class="font-display text-xl text-primary">$3</div>
+                  <div class="text-[10px] text-muted">Per extra</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Account Verification -->
+        <div class="product-card bg-white/80 rounded-2xl border border-border/60 overflow-hidden">
+          <div class="bg-primary p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-1">Step 3 · Document Collection</div>
+                <h3 class="font-display text-2xl text-white">Account Verification</h3>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                <svg width="24" height="24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><rect x="3" y="5" width="18" height="14" rx="3"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="p-5 space-y-4">
+            <div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-1">Data In</div>
+              <p class="text-sm text-ink/80">Borrower's bank account details (IBAN, account holder name)</p>
+            </div>
+            <div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-1">Data Out</div>
+              <p class="text-sm text-ink/80">Account validity confirmation, name match verification, account status</p>
+            </div>
+            <div class="bg-cream rounded-xl p-4 border border-border/40">
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-accent-dark mb-2">Pricing</div>
+              <div class="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <div class="font-display text-xl text-primary">$2k</div>
+                  <div class="text-[10px] text-muted">Min / year</div>
+                </div>
+                <div>
+                  <div class="font-display text-xl text-primary">2,000</div>
+                  <div class="text-[10px] text-muted">Incl.</div>
+                </div>
+                <div>
+                  <div class="font-display text-xl text-primary">$1</div>
+                  <div class="text-[10px] text-muted">Per extra</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Collections -->
+        <div class="product-card bg-white/80 rounded-2xl border border-border/60 overflow-hidden">
+          <div class="bg-accent-dark p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-1">Step 9 · Recurring Payments</div>
+                <h3 class="font-display text-2xl text-white">Collections</h3>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                <svg width="24" height="24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="p-5 space-y-4">
+            <div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-1">Data In</div>
+              <p class="text-sm text-ink/80">Payment schedule, buyer bank account, instalment amounts</p>
+            </div>
+            <div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-1">Data Out</div>
+              <p class="text-sm text-ink/80">Monthly payment collection confirmations, reconciliation data, failed payment alerts</p>
+            </div>
+            <div class="bg-cream rounded-xl p-4 border border-border/40">
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-accent-dark mb-2">Pricing</div>
+              <div class="grid grid-cols-2 gap-3 text-center">
+                <div>
+                  <div class="font-display text-xl text-accent-dark">$6k</div>
+                  <div class="text-[10px] text-muted">Min / year</div>
+                </div>
+                <div>
+                  <div class="font-display text-xl text-accent-dark">0.40%</div>
+                  <div class="text-[10px] text-muted">Per collection</div>
+                </div>
+              </div>
+              <div class="mt-3 pt-3 border-t border-border/40">
+                <div class="text-[11px] text-muted text-center">~60 monthly collections per borrower over lease term</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Payouts -->
+        <div class="product-card bg-white/80 rounded-2xl border border-border/60 overflow-hidden">
+          <div class="bg-accent-dark p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-1">Step 10 · Disbursements</div>
+                <h3 class="font-display text-2xl text-white">Payouts</h3>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                <svg width="24" height="24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="p-5 space-y-4">
+            <div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-1">Data In</div>
+              <p class="text-sm text-ink/80">Disbursement instructions: recipient bank details, amounts, references</p>
+            </div>
+            <div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-1">Data Out</div>
+              <p class="text-sm text-ink/80">Payment confirmations to DLD, seller agent, mortgage provider; transaction receipts</p>
+            </div>
+            <div class="bg-cream rounded-xl p-4 border border-border/40">
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-accent-dark mb-2">Pricing</div>
+              <div class="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <div class="font-display text-xl text-accent-dark">$3k</div>
+                  <div class="text-[10px] text-muted">Min / year</div>
+                </div>
+                <div>
+                  <div class="font-display text-xl text-accent-dark">1,000</div>
+                  <div class="text-[10px] text-muted">Incl.</div>
+                </div>
+                <div>
+                  <div class="font-display text-xl text-accent-dark">$3</div>
+                  <div class="text-[10px] text-muted">Per extra</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Annual commitment summary -->
+      <div class="mt-10 bg-primary rounded-2xl p-6 md:p-8 text-white">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-1">Total Annual Minimum Commitment</div>
+            <div class="font-display text-4xl md:text-5xl">$17,000<span class="text-lg text-white/50"> /yr</span></div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div class="bg-white/10 rounded-xl p-3">
+              <div class="font-display text-lg">$6k</div>
+              <div class="text-[10px] text-white/60">Open Banking</div>
+            </div>
+            <div class="bg-white/10 rounded-xl p-3">
+              <div class="font-display text-lg">$2k</div>
+              <div class="text-[10px] text-white/60">Verification</div>
+            </div>
+            <div class="bg-white/10 rounded-xl p-3">
+              <div class="font-display text-lg">$6k</div>
+              <div class="text-[10px] text-white/60">Collections</div>
+            </div>
+            <div class="bg-white/10 rounded-xl p-3">
+              <div class="font-display text-lg">$3k</div>
+              <div class="text-[10px] text-white/60">Payouts</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- ─── MERMAID FLOW DIAGRAM ─── -->
+  <section id="flow" class="py-20 px-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-xs font-semibold uppercase tracking-widest text-accent">Decision Architecture</span>
+        <h2 class="font-display text-4xl md:text-5xl text-primary mt-3">Full Journey Flow</h2>
+        <p class="text-muted mt-4 max-w-xl mx-auto">Detailed decision flow with branch logic, auto-decline gates, conditional paths, and Lean integration points.</p>
+      </div>
+
+      <div class="mermaid-container bg-white/60 rounded-2xl border border-border/60 p-6 md:p-10">
+        <pre class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#E8F5EE', 'primaryBorderColor': '#0C4A3E', 'primaryTextColor': '#0C4A3E', 'lineColor': '#0C4A3E', 'secondaryColor': '#FDF6E3', 'tertiaryColor': '#FDECEA', 'fontFamily': 'DM Sans', 'fontSize': '13px' }}}%%
+flowchart TD
+    START([Lead Arrives]) --> ADS{Source?}
+    ADS -->|META Ads| FORM[Basic Contact Form<br/>Name · Phone · Email]
+    ADS -->|Website| FORM
+
+    FORM --> PQ[Pre-Qualification Form<br/>Income · Employment · Nationality<br/>Property Intent · Liabilities]
+
+    PQ --> LEAN1[🟡 LEAN: Open Banking Data<br/>Connect bank via consent flow<br/>6-month statement analysis]
+
+    LEAN1 --> GATE1{Auto-Decline<br/>Gate}
+    GATE1 -->|Income too low| DECLINE1[❌ Auto-Decline<br/>Does not meet<br/>minimum criteria]
+    GATE1 -->|Passes| DOCS[Document Collection<br/>Statements · Passport · ID<br/>Payslips · Salary Cert]
+
+    DOCS --> LEAN2[🟡 LEAN: Account Verification<br/>Confirm bank account validity]
+
+    LEAN2 --> SCS[Generate Internal<br/>Credit Score - SCS]
+
+    SCS --> GATE2{Approval<br/>Decision}
+    GATE2 -->|Score too low| DECLINE2[❌ Decline<br/>Does not meet<br/>credit criteria]
+    GATE2 -->|Conditional| COND[⚠️ Conditional Approval<br/>Additional docs or<br/>guarantor required]
+    GATE2 -->|Approved| APPROVED[✅ Approved]
+
+    COND --> CONDGATE{Conditions<br/>Met?}
+    CONDGATE -->|No| DECLINE3[❌ Decline]
+    CONDGATE -->|Yes| APPROVED
+
+    APPROVED --> LICENSE{Sooner<br/>License Status?}
+    LICENSE -->|Pre-License| REFERRAL[Refer to Partner<br/>Mortgage Provider]
+    LICENSE -->|Post-License| INHOUSE[Sooner Processes<br/>Mortgage In-House]
+
+    REFERRAL --> PREAPPROVAL[Mortgage Pre-Approval]
+    INHOUSE --> PREAPPROVAL
+
+    PREAPPROVAL --> SEARCH[Property Search<br/>Inventory · Viewings · Selection]
+
+    SEARCH --> FORMB[Sign Form B<br/>Authorise Sooner as Buyer Agent]
+    FORMB --> FORMF[Sign Form F - MOU<br/>Buyer ↔ Seller Agreement]
+
+    FORMF --> FULL_MORTGAGE[Full Mortgage Approval<br/>Credit Committee Sign-off]
+
+    FULL_MORTGAGE --> CONTRACT[Sooner–Buyer<br/>Facility Contract]
+
+    CONTRACT --> LEAN3[🟡 LEAN: Collections<br/>First Payment + Recurring<br/>0.40% per transaction · ~60 months]
+
+    LEAN3 --> LEAN4[🟡 LEAN: Payouts<br/>Disburse to DLD · Seller Agent<br/>Mortgage Provider]
+
+    LEAN4 --> LEASE[Master & Sub-Lease Setup<br/>Forward Ijara Complete]
+
+    LEASE --> DONE([🏠 Homeownership])
+
+    classDef leanNode fill:#FDF6E3,stroke:#C49A2A,stroke-width:2px,color:#9A7820
+    classDef declineNode fill:#FDECEA,stroke:#C0392B,stroke-width:2px,color:#C0392B
+    classDef approveNode fill:#E8F8EF,stroke:#1E8449,stroke-width:2px,color:#1E8449
+    classDef condNode fill:#FDF2E9,stroke:#D4790E,stroke-width:2px,color:#D4790E
+    classDef decisionNode fill:#F5F3EE,stroke:#0C4A3E,stroke-width:2px,color:#0C4A3E
+    classDef startEnd fill:#0C4A3E,stroke:#083028,stroke-width:2px,color:#FFFFFF
+
+    class LEAN1,LEAN2,LEAN3,LEAN4 leanNode
+    class DECLINE1,DECLINE2,DECLINE3 declineNode
+    class APPROVED,DONE approveNode
+    class COND condNode
+    class GATE1,GATE2,CONDGATE,LICENSE,ADS decisionNode
+    class START,DONE startEnd
+        </pre>
+      </div>
+
+      <!-- Legend -->
+      <div class="mt-6 flex flex-wrap justify-center gap-4 text-xs">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-[#FDF6E3] border-2 border-[#C49A2A]"></div>
+          <span class="text-muted">Lean Touchpoint</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-[#E8F8EF] border-2 border-[#1E8449]"></div>
+          <span class="text-muted">Approved / Complete</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-[#FDECEA] border-2 border-[#C0392B]"></div>
+          <span class="text-muted">Declined</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-[#FDF2E9] border-2 border-[#D4790E]"></div>
+          <span class="text-muted">Conditional</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 rounded bg-[#F5F3EE] border-2 border-[#0C4A3E]"></div>
+          <span class="text-muted">Decision Gate</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="border-t border-border/50 py-10 px-6">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted">
+      <div class="flex items-center gap-3">
+        <div class="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
+          <span class="text-white font-display text-[10px]">S</span>
+        </div>
+        <span>Sooner × Lean Technologies — Integration Brief</span>
+      </div>
+      <div class="text-xs">Prepared for partner review · Forward Ijara model</div>
+    </div>
+  </footer>
+
+  <!-- Mermaid init -->
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#E8F5EE',
+        primaryBorderColor: '#0C4A3E',
+        primaryTextColor: '#0C4A3E',
+        lineColor: '#0C4A3E',
+        secondaryColor: '#FDF6E3',
+        tertiaryColor: '#FDECEA',
+        fontFamily: 'DM Sans',
+        fontSize: '13px',
+      },
+      flowchart: {
+        curve: 'basis',
+        padding: 20,
+        htmlLabels: true,
+        useMaxWidth: true,
+      },
+    });
+  </script>
+
+  <!-- Scroll animations -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.anim-fade-up, .anim-scale-in, .anim-slide-r').forEach(el => {
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+  </script>
+
+</body>
+</html>
