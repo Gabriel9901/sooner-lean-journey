@@ -94,12 +94,62 @@
       box-shadow: 0 16px 40px rgba(12,74,62,0.1);
     }
 
-    /* Mermaid container */
+    /* Mermaid container with zoom */
     .mermaid-container {
-      overflow-x: auto;
+      overflow: auto;
       -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+    .mermaid-viewport {
+      transform-origin: top center;
+      transition: transform 0.3s ease;
     }
     .mermaid svg { max-width: none !important; }
+    .zoom-controls {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      padding-bottom: 8px;
+    }
+    .zoom-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1.5px solid #DDD9D0;
+      background: rgba(245,243,238,0.9);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #0C4A3E;
+      font-size: 18px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      user-select: none;
+      font-family: 'DM Sans', system-ui, sans-serif;
+    }
+    .zoom-btn:hover {
+      background: #EBE7DF;
+      border-color: #0C4A3E;
+    }
+    .zoom-label {
+      min-width: 48px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1.5px solid #DDD9D0;
+      background: rgba(245,243,238,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #7A7A85;
+      font-family: 'DM Sans', system-ui, sans-serif;
+    }
 
     /* Grain overlay */
     .grain::before {
@@ -365,8 +415,9 @@
                 </span>
               </div>
               <ul class="text-sm text-muted mt-1.5 space-y-0.5">
-                <li>Buyer pays first instalment</li>
-                <li>Lean collects recurring monthly Forward Ijara payments over ~60-month term</li>
+                <li>Buyer's 1st instalment collected before funds are disbursed</li>
+                <li>After homeownership, Lean collects 59 recurring monthly Forward Ijara payments</li>
+                <li>Bank account stays connected from pre-qualification through final payment</li>
               </ul>
             </div>
           </div>
@@ -510,8 +561,17 @@
         <p class="text-muted mt-4 max-w-lg mx-auto">The standard buyer path from application to homeownership, with Lean integration points highlighted.</p>
       </div>
 
-      <div class="mermaid-container bg-white/60 rounded-2xl border border-border/60 p-6 md:p-10">
-        <div class="mermaid" style="overflow-x: auto; padding: 4px;">
+      <div class="mermaid-container bg-white/60 rounded-2xl border border-border/60 p-4 md:p-6" id="mermaid-container">
+        <!-- Zoom controls -->
+        <div class="zoom-controls">
+          <button class="zoom-btn" onclick="zoomDiagram(-1)" title="Zoom out">&minus;</button>
+          <div class="zoom-label" id="zoom-label">70%</div>
+          <button class="zoom-btn" onclick="zoomDiagram(1)" title="Zoom in">&plus;</button>
+          <button class="zoom-btn" onclick="zoomDiagram(0)" title="Fit to view" style="font-size: 13px;">Fit</button>
+        </div>
+
+        <div class="mermaid-viewport" id="mermaid-viewport">
+          <div class="mermaid" style="padding: 4px;">
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#E8F5EE', 'primaryBorderColor': '#0C4A3E', 'primaryTextColor': '#0C4A3E', 'lineColor': '#0C4A3E', 'secondaryColor': '#FDF6E3', 'tertiaryColor': '#FDECEA', 'fontFamily': 'DM Sans', 'fontSize': '13px' }}}%%
 flowchart TD
     A([Buyer Applies]) --> B[Pre-Qualification Form]
@@ -534,20 +594,29 @@ flowchart TD
 
     H --> I[Sooner–Buyer Facility Contract]
 
-    I --> LEAN3[🟡 LEAN: Collections<br/>Recurring monthly payments ~60 months]
+    I --> LEAN3a[🟡 LEAN: Collections<br/>1st instalment collected]
 
-    LEAN3 --> LEAN4[🟡 LEAN: Payouts<br/>Disburse to DLD, seller agent, mortgage provider]
+    LEAN3a --> LEAN4[🟡 LEAN: Payouts<br/>Disburse to DLD, seller agent, mortgage provider]
 
     LEAN4 --> J[Master &amp; Sub-Lease Setup]
 
     J --> K([🏠 Homeownership])
 
+    K --> LEAN3b[🟡 LEAN: Collections<br/>59 monthly payments ongoing]
+
+    LEAN3b --> DONE([Loan Complete])
+
+    LEAN1 -. Bank account remains<br/>connected for full<br/>loan lifecycle .-> LEAN3b
+
     classDef leanNode fill:#FDF6E3,stroke:#C49A2A,stroke-width:2px,color:#9A7820
     classDef startEnd fill:#0C4A3E,stroke:#083028,stroke-width:2px,color:#FFFFFF
+    classDef doneNode fill:#E8F8EF,stroke:#1E8449,stroke-width:2px,color:#1E8449
     classDef default fill:#E8F5EE,stroke:#0C4A3E,stroke-width:1.5px,color:#0C4A3E
 
-    class LEAN1,LEAN2,LEAN3,LEAN4 leanNode
+    class LEAN1,LEAN2,LEAN3a,LEAN3b,LEAN4 leanNode
     class A,K startEnd
+    class DONE doneNode
+          </div>
         </div>
       </div>
 
@@ -564,6 +633,10 @@ flowchart TD
         <div class="flex items-center gap-2">
           <div class="w-4 h-4 rounded-full bg-[#0C4A3E] border-2 border-[#083028]"></div>
           <span class="text-muted">Start / End</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-0 border-t-2 border-dashed border-[#0C4A3E]/40"></div>
+          <span class="text-muted">Persistent Connection</span>
         </div>
       </div>
     </div>
@@ -619,6 +692,57 @@ flowchart TD
       el.style.animationPlayState = 'paused';
       observer.observe(el);
     });
+  </script>
+
+  <!-- Zoom controls -->
+  <script>
+    let currentZoom = 0.7;
+    const zoomSteps = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+
+    function applyZoom() {
+      const viewport = document.getElementById('mermaid-viewport');
+      const label = document.getElementById('zoom-label');
+      viewport.style.transform = 'scale(' + currentZoom + ')';
+      label.textContent = Math.round(currentZoom * 100) + '%';
+    }
+
+    function zoomDiagram(dir) {
+      if (dir === 0) {
+        // Fit: calculate zoom to fit container
+        const container = document.getElementById('mermaid-container');
+        const svg = container.querySelector('svg');
+        if (svg) {
+          const containerW = container.clientWidth - 48;
+          const svgW = svg.getBBox().width + 40;
+          const svgH = svg.getBBox().height + 40;
+          const containerH = window.innerHeight * 0.7;
+          currentZoom = Math.min(containerW / svgW, containerH / svgH, 1.0);
+          currentZoom = Math.round(currentZoom * 20) / 20; // snap to 5%
+          currentZoom = Math.max(0.3, Math.min(1.0, currentZoom));
+        }
+      } else {
+        const idx = zoomSteps.indexOf(currentZoom);
+        if (idx === -1) {
+          // Find nearest step
+          const nearest = zoomSteps.reduce((a, b) =>
+            Math.abs(b - currentZoom) < Math.abs(a - currentZoom) ? b : a
+          );
+          currentZoom = nearest;
+          const newIdx = zoomSteps.indexOf(currentZoom) + dir;
+          if (newIdx >= 0 && newIdx < zoomSteps.length) currentZoom = zoomSteps[newIdx];
+        } else {
+          const newIdx = idx + dir;
+          if (newIdx >= 0 && newIdx < zoomSteps.length) currentZoom = zoomSteps[newIdx];
+        }
+      }
+      applyZoom();
+    }
+
+    // Set initial zoom after mermaid renders
+    setTimeout(function() {
+      currentZoom = 0.7;
+      applyZoom();
+    }, 500);
   </script>
 
 </body>
