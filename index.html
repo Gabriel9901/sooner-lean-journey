@@ -390,7 +390,7 @@
               </div>
               <ul class="text-sm text-muted mt-1.5 space-y-0.5">
                 <li>Buyer's 1st instalment collected before funds are disbursed</li>
-                <li>Lean sets up the recurring collection schedule for the full loan term</li>
+                <li>Lean sets up the recurring collection schedule for the full facility term</li>
               </ul>
             </div>
           </div>
@@ -451,7 +451,7 @@
                 </span>
               </div>
               <ul class="text-sm text-muted mt-1.5 space-y-0.5">
-                <li>Bank accounts remain connected for the full loan lifecycle</li>
+                <li>Bank accounts remain connected for the full facility lifecycle</li>
                 <li>Lean collects 59 recurring monthly Forward Ijara payments after homeownership</li>
                 <li>Ongoing financial data supports risk monitoring and early-warning signals</li>
               </ul>
@@ -479,17 +479,17 @@
         <!-- Card 1: Open Banking Data -->
         <div class="product-card bg-white/80 rounded-2xl border border-border/60 overflow-hidden">
           <div class="bg-primary px-5 py-4">
-            <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-0.5">Step 2</div>
+            <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-0.5">Steps 2 &amp; 12</div>
             <h3 class="font-display text-xl text-white">Open Banking Data</h3>
           </div>
           <div class="p-5 space-y-3">
             <div>
               <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-0.5">Data In</div>
-              <p class="text-sm text-ink/80">Buyer connects bank account via Lean consent flow</p>
+              <p class="text-sm text-ink/80">Buyer connects one or multiple banks via consent flow (current, savings &amp; credit accounts)</p>
             </div>
             <div>
               <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-0.5">Data Out</div>
-              <p class="text-sm text-ink/80">Income verification, 6-month transaction history, statement analysis</p>
+              <p class="text-sm text-ink/80">Income verification, statement analysis, ongoing financial data for risk monitoring</p>
             </div>
           </div>
         </div>
@@ -515,7 +515,7 @@
         <!-- Card 3: Collections -->
         <div class="product-card bg-white/80 rounded-2xl border border-border/60 overflow-hidden">
           <div class="bg-accent-dark px-5 py-4">
-            <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-0.5">Step 9</div>
+            <div class="text-accent-light text-[10px] font-bold uppercase tracking-widest mb-0.5">Steps 9 &amp; 12</div>
             <h3 class="font-display text-xl text-white">Collections</h3>
           </div>
           <div class="p-5 space-y-3">
@@ -525,7 +525,7 @@
             </div>
             <div>
               <div class="text-[10px] font-semibold uppercase tracking-wider text-primary/50 mb-0.5">Data Out</div>
-              <p class="text-sm text-ink/80">Monthly collection confirmations, reconciliation data, failed payment alerts</p>
+              <p class="text-sm text-ink/80">1st payment confirmation, 59 recurring collection confirmations, failed payment alerts</p>
             </div>
           </div>
         </div>
@@ -606,9 +606,9 @@ flowchart TD
 
     K --> LEAN3b[🟡 LEAN: Collections<br/>59 monthly payments ongoing]
 
-    LEAN3b --> DONE([Loan Complete])
+    LEAN3b --> DONE([Facility Complete])
 
-    LEAN1 -. Bank account remains<br/>connected for full<br/>loan lifecycle .-> LEAN3b
+    LEAN1 -. Bank account remains<br/>connected for full<br/>facility lifecycle .-> LEAN3b
 
     classDef leanNode fill:#FDF6E3,stroke:#C49A2A,stroke-width:2px,color:#9A7820
     classDef startEnd fill:#0C4A3E,stroke:#083028,stroke-width:2px,color:#FFFFFF
