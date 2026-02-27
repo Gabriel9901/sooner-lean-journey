@@ -510,32 +510,45 @@
         <p class="text-muted mt-4 max-w-lg mx-auto">The standard buyer path from application to homeownership, with Lean integration points highlighted.</p>
       </div>
 
-      <div class="mermaid-container bg-white/60 rounded-2xl border border-border/60 p-6 md:p-8">
-        <pre class="mermaid">
+      <div class="mermaid-container bg-white/60 rounded-2xl border border-border/60 p-6 md:p-10">
+        <div class="mermaid" style="overflow-x: auto; padding: 4px;">
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#E8F5EE', 'primaryBorderColor': '#0C4A3E', 'primaryTextColor': '#0C4A3E', 'lineColor': '#0C4A3E', 'secondaryColor': '#FDF6E3', 'tertiaryColor': '#FDECEA', 'fontFamily': 'DM Sans', 'fontSize': '13px' }}}%%
-flowchart LR
-    A([Buyer Applies]) --> B[Pre-Qualification]
-    B --> C[🟡 Open Banking<br/>via Lean]
-    C --> D[Document<br/>Collection]
-    D --> E[🟡 Account<br/>Verification<br/>via Lean]
-    E --> F[Approval<br/>Decision]
-    F --> G[Mortgage<br/>Pre-Approval]
-    G --> H[Property<br/>Search]
-    H --> I[Sign<br/>Form B &amp; F]
-    I --> J[Full Mortgage<br/>Approval]
-    J --> K[Facility<br/>Contract]
-    K --> L[🟡 Collections<br/>via Lean]
-    L --> M[🟡 Payouts<br/>via Lean]
-    M --> N[Lease<br/>Setup]
-    N --> O([🏠 Homeowner])
+flowchart TD
+    A([Buyer Applies]) --> B[Pre-Qualification Form]
+
+    B --> LEAN1[🟡 LEAN: Open Banking Data<br/>Verify income via bank consent flow]
+
+    LEAN1 --> C[Document Collection]
+
+    C --> LEAN2[🟡 LEAN: Account Verification<br/>Confirm bank account validity]
+
+    LEAN2 --> D[Approval Decision]
+
+    D --> E[Mortgage Pre-Approval]
+
+    E --> F[Property Search &amp; Selection]
+
+    F --> G[Sign Form B &amp; Form F]
+
+    G --> H[Full Mortgage Approval]
+
+    H --> I[Sooner–Buyer Facility Contract]
+
+    I --> LEAN3[🟡 LEAN: Collections<br/>Recurring monthly payments ~60 months]
+
+    LEAN3 --> LEAN4[🟡 LEAN: Payouts<br/>Disburse to DLD, seller agent, mortgage provider]
+
+    LEAN4 --> J[Master &amp; Sub-Lease Setup]
+
+    J --> K([🏠 Homeownership])
 
     classDef leanNode fill:#FDF6E3,stroke:#C49A2A,stroke-width:2px,color:#9A7820
     classDef startEnd fill:#0C4A3E,stroke:#083028,stroke-width:2px,color:#FFFFFF
     classDef default fill:#E8F5EE,stroke:#0C4A3E,stroke-width:1.5px,color:#0C4A3E
 
-    class C,E,L,M leanNode
-    class A,O startEnd
-        </pre>
+    class LEAN1,LEAN2,LEAN3,LEAN4 leanNode
+    class A,K startEnd
+        </div>
       </div>
 
       <!-- Legend -->
